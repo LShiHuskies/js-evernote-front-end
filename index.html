@@ -1,10 +1,49 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
+
     <meta charset="utf-8">
     <title></title>
   </head>
   <body>
+    <h1>Amazing Users</h1>
+    <form id="new-user-form">
+        <label >User: <input id='new-user-text' type="text"></label>
+        <button id='submit'>Create User</button>
+    </form>
+    <ul id='users-container'>
 
+    </ul>
+
+    <h1>Notes</h1>
+    <form id="new-note-form">
+        <label >Personal Note Title: <input id='new-note-text-title' type="text"></label>
+        <label >Personal Note Description: <input id='new-note-text-description' type="text"></label>
+        <button id='submit'>Create Note</button>
+    </form>
+    <ul id='notes-container'>
+
+    </ul>
+    <h1>Games</h1>
+    <div id='games'>
+
+
+    </div>
+
+    <script src="index.js"></script>
+    <style>
+      #games {
+       display: grid;
+       height: 400px;
+       width: 400px;
+
+       grid-template-columns: 33% 33% 34%;
+       grid-template-rows: 33% 33% 34%;
+     }
+     .TIC {
+       border-style: solid;
+     }
+    </style>
   </body>
+
 </html>
