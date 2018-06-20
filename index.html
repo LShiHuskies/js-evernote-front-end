@@ -6,16 +6,26 @@
     <title></title>
   </head>
   <body>
-    <h1>Amazing Users</h1>
+    <h1>Welcome Aboard</h1>
     <form id="new-user-form">
         <label >User: <input id='new-user-text' type="text"></label>
         <button id='submit'>Create User</button>
     </form>
     <ul id='users-container'>
 
+      <h3>List of Users</h3>
+
     </ul>
 
-    <h1>Notes</h1>
+    <h2>Notes</h2>
+    <form id="search-note-form">
+        <label >Title: <input id='note-title' type="text"></label>
+        <button id='submit'>Search Title Note</button> <br>
+        <label >Description: <input id='note-description' type="text"></label>
+        <button id='submit'>Search Description Note</button>
+    </form>
+    <br>
+
     <form id="new-note-form">
         <label >Personal Note Title: <input id='new-note-text-title' type="text"></label>
         <label >Personal Note Description: <input id='new-note-text-description' type="text"></label>
@@ -24,7 +34,7 @@
     <ul id='notes-container'>
 
     </ul>
-    <h1>Games</h1>
+    <h2>Games</h2>
     <div id='games'>
 
 
@@ -32,6 +42,9 @@
 
     <script src="index.js"></script>
     <style>
+      h1 {
+        text-align: center;
+      }
       #games {
        display: grid;
        height: 400px;
@@ -43,6 +56,87 @@
      .TIC {
        border-style: solid;
      }
+
+     #new-user-form {
+        /* float:left;
+        width: 30%; */
+        text-align: center;
+        font-size: 25px;
+
+        }
+     #users-container {
+        background-image: url('https://www.cardschat.com/pkimg/guides/top-players/phil-ivey.jpg');
+        background-position: right;
+        background-repeat: no-repeat;
+        text-align: center;
+        background-color: rgba(3, 3, 3, 0.2);
+
+      }
+
+    #search-note-form {
+      float:left;
+      width: 30%;
+      font-weight: bold;
+      font-size: 20px;
+    }
+
+    #Delete {
+      background-color: red;
+      font-weight: bold;
+      margin-top: 5px;
+      margin-bottom: 5px;
+      margin-right: 5px;
+      margin-left: 5px;
+    }
+
+    #Update {
+      background-color: yellow;
+      font-weight: bold;
+      margin-top: 5px;
+      margin-bottom: 5px;
+      margin-right: 10px;
+      margin-left: 10px;
+    }
+
+    #submit {
+      background-color: rgba(0, 200, 40, 0.5);
+      font-weight: bold;
+    }
+
+    #notes {
+      background-color: rgba(80, 80, 80, 0.4);
+      margin-top: 5px;
+      margin-bottom: 5px;
+      margin-right: 10px;
+      margin-left: 10px;
+      font-weight: bold;
+    }
+
+    #games {
+        background-color: rgba(70, 70, 200, 0.3);
+    }
+
+    .GAMES {
+      background-color: rgba(70, 70, 200, 0.3);
+      font-weight: bold;
+    }
+
+    body {
+      background-color: rgba(10, 5, 10, 0.4);
+    }
+    /* #new-note-form {
+
+      width:60%;
+    } */
+
+    #notes-container {
+      float:right;
+      width:70%;
+      background-color: rgba(0, 0, 30, 0.2);
+      font-weight: bold;
+      font-size: 17px;
+    }
+
     </style>
   </body>
 

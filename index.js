@@ -4,7 +4,11 @@ const notesURL = 'http://localhost:3000/api/v1/notes';
 const usersURL = 'http://localhost:3000/api/v1/users';
 const notesList = document.getElementById('notes-container');
 const usersArray = [];
+const gamesContainer = document.getElementById('games');
+const searchNote = document.getElementById('search-note-form');
 
+var count = 0;
+var num_count = 0;
 
 
 const notesForm = document.getElementById('new-note-form');
@@ -36,10 +40,20 @@ usersList.addEventListener('click', function(event){
     const updateName = updateText.value;
     patchupdateName(event, updateName, userId);
   } else if (event.target.innerText == 'Play Games') {
-
-    const userId = event.target.id.slice(6)
-    displayBoard(event, userId)
+    const userId = event.target.id.slice(6);
+    const gamesContainer = document.getElementById('games')
+    displayBoard(event, userId);
     // display tic tae toe board
+
+  } else if (event.target.innerText == "Game In Progress") {
+    count = 0;
+    const gamesContainer = document.getElementById('games');
+    var arr = Array.from(gamesContainer.children);
+    arr.forEach(e => e.remove())
+    // event.target.innerText = "Play Games"
+    var things = document.getElementsByClassName('GAMES')
+    var thingsArray = Array.from(things)
+    thingsArray.forEach( e => e.innerText = "Play Games")
   }
 
 })
@@ -47,7 +61,7 @@ usersList.addEventListener('click', function(event){
 function displayBoard(event, userId) {
 
   const gamesContainer = document.getElementById('games');
-  
+
   const toeOne = document.createElement('DIV');
   const toeTwo = document.createElement('DIV');
   const toeThree = document.createElement('DIV');
@@ -83,6 +97,10 @@ function displayBoard(event, userId) {
   gamesContainer.appendChild(toeNine);
   var arr = Array.from(gamesContainer.children);
   arr.forEach(e => e.className = "TIC")
+  // event.target.innerText = "Game In Progress";
+  var things = document.getElementsByClassName('GAMES')
+  var thingsArray = Array.from(things)
+  thingsArray.forEach( e => e.innerText = "Game In Progress")
 
 
 }
@@ -149,12 +167,12 @@ function displayNote(userId, note) {
   ptitle.innerText = `TITLE:
               ${note.title}`;
   const updateTitle = document.createElement('BUTTON');
-  updateTitle.setAttribute('id', 'Update Title');
+  updateTitle.setAttribute('id', 'Update');
   updateTitle.innerText = "Update Title";
   ptitle.appendChild(updateTitle);
 
   const deleteTitle = document.createElement('BUTTON');
-  deleteTitle.setAttribute('id', 'Delete Title');
+  deleteTitle.setAttribute('id', 'Delete');
   deleteTitle.innerText = "Delete Title";
   ptitle.appendChild(deleteTitle);
 
@@ -165,17 +183,17 @@ function displayNote(userId, note) {
 
 
   const updateBody = document.createElement('BUTTON');
-  updateBody.setAttribute('id', 'Update Body');
+  updateBody.setAttribute('id', 'Update');
   updateBody.innerText = "Update Description";
 
 
   const deleteBody = document.createElement('BUTTON');
-  deleteBody.setAttribute('id', 'Delete Body');
+  deleteBody.setAttribute('id', 'Delete');
   deleteBody.innerText = "Delete Description";
 
 
   const deleteNote = document.createElement('BUTTON');
-  deleteNote.setAttribute('id', 'Delete Note');
+  deleteNote.setAttribute('id', 'Delete');
   deleteNote.innerText = "Delete Note";
   li.appendChild(deleteNote);
   pbody.appendChild(updateBody);
@@ -185,8 +203,6 @@ function displayNote(userId, note) {
   notesList.appendChild(li);
 
 }
-
-
 
 
 
@@ -215,8 +231,6 @@ function createUser(name) {
   fetch(usersURL, config).then(r=> r.json()).then(displayUser)
 }
 
-
-
 function displayUser(user) {
 
   const usersContainer = document.getElementById('users-container');
@@ -226,7 +240,7 @@ function displayUser(user) {
   li.setAttribute('id', `${user.id}`);
   li.innerText = user.name;
   const buttonUpdate = document.createElement('BUTTON');
-  buttonUpdate.setAttribute('id', 'Update User');
+  buttonUpdate.setAttribute('id', 'Update');
   buttonUpdate.innerText = 'Update';
   li.appendChild(buttonUpdate);
   const buttonDelete = document.createElement('BUTTON');
@@ -241,8 +255,184 @@ function displayUser(user) {
 
 }
 
+// <form id="search-note-form">
+//     <label >Personal Note: <input id='note-title' type="text"></label>
+//     <button id='submit'>Search Note</button>
+// </form>
+// const searchNote = document.getElementById('search-note-form');
+searchNote.addEventListener('click', function(event) {
+  event.preventDefault()
+  if (notesList.children.length > 0) {
+    var arr = Array.from(notesList.children)
+    arr.forEach(e => e.remove())
+  }
+  if (event.target.innerText == 'Search Title Note') {
+    const noteSearchText = document.getElementById('note-title');
+    const search = noteSearchText.value;
+    if (search !== '') {
+      searchFindNoteTitle(search);
+    }
+    noteSearchText.value = '';
+  } else if (event.target.innerText == 'Search Description Note') {
+    const noteSearchText = document.getElementById('note-description');
+    const search = noteSearchText.value;
+    if (search !== '') {
+      searchFindNoteBody(search);
+    }
+    noteSearchText.value = '';
+  }
+})
+
+function searchFindNoteBody(search) {
+  fetch(notesURL).then(r => r.json()).then(notes => getAllNotesBody(notes, search))
+}
+
+function getAllNotesBody(notes, search) {
+  notes.map(note => getNoteInfoBody(note, search))
+}
+
+function getNoteInfoBody(note, search) {
+  if (note.body.includes(search)) {
+    if (note.user) {
+      var id = note.user.id
+      var name = note.user.name
+    }
+
+    const li = document.createElement('LI');
+    li.setAttribute('id', `user-${id}`);
+    const ptitle = document.createElement('P');
+    ptitle.setAttribute('id', `title-${note.id}`);
+    ptitle.innerText = `TITLE:
+                ${note.title}`;
+    const updateTitle = document.createElement('BUTTON');
+    updateTitle.setAttribute('id', 'Update');
+    updateTitle.innerText = "Update Title";
+    ptitle.appendChild(updateTitle);
+
+    const deleteTitle = document.createElement('BUTTON');
+    deleteTitle.setAttribute('id', 'Delete');
+    deleteTitle.innerText = "Delete Title";
+    ptitle.appendChild(deleteTitle);
+
+    const pbody = document.createElement('P');
+    pbody.setAttribute('id', `body-${note.id}`);
+    pbody.innerText = `DESCRIPTION:
+                      ${note.body}`;
 
 
+    const updateBody = document.createElement('BUTTON');
+    updateBody.setAttribute('id', 'Update');
+    updateBody.innerText = "Update Description";
+
+
+    const deleteBody = document.createElement('BUTTON');
+    deleteBody.setAttribute('id', 'Delete');
+    deleteBody.innerText = "Delete Description";
+
+
+    const deleteNote = document.createElement('BUTTON');
+    deleteNote.setAttribute('id', 'Delete Note');
+    deleteNote.innerText = "Delete Note";
+    li.appendChild(deleteNote)
+    pbody.appendChild(updateBody);
+    pbody.appendChild(deleteBody);
+    li.appendChild(ptitle);
+    li.appendChild(pbody);
+
+    const userName = document.createElement('BUTTON');
+    userName.setAttribute('id', `USER`)
+    if (name) {
+        userName.innerText = `${name}
+
+        `
+    } else {
+      userName.innerText = `This not does not belong to a user.
+
+      `
+    }
+    li.appendChild(userName)
+    notesList.appendChild(li)
+  }
+}
+
+
+
+function searchFindNoteTitle(search) {
+  fetch(notesURL).then(r => r.json()).then(notes => getAllNotes(notes, search))
+}
+
+function getAllNotes(notes, search) {
+  notes.map(note => getNoteInfo(note, search))
+}
+
+function getNoteInfo(note, search) {
+  const notesList = document.getElementById('notes-container');
+
+  if (note.title.includes(search)) {
+    if (note.user) {
+      var id = note.user.id
+      var name = note.user.name
+    }
+
+    const li = document.createElement('LI');
+    li.setAttribute('id', `user-${id}`);
+    const ptitle = document.createElement('P');
+    ptitle.setAttribute('id', `title-${note.id}`);
+    ptitle.innerText = `TITLE:
+                ${note.title}`;
+    const updateTitle = document.createElement('BUTTON');
+    updateTitle.setAttribute('id', 'Update');
+    updateTitle.innerText = "Update Title";
+    ptitle.appendChild(updateTitle);
+
+    const deleteTitle = document.createElement('BUTTON');
+    deleteTitle.setAttribute('id', 'Delete');
+    deleteTitle.innerText = "Delete Title";
+    ptitle.appendChild(deleteTitle);
+
+    const pbody = document.createElement('P');
+    pbody.setAttribute('id', `body-${note.id}`);
+    pbody.innerText = `DESCRIPTION:
+                      ${note.body}`;
+
+
+    const updateBody = document.createElement('BUTTON');
+    updateBody.setAttribute('id', 'Update');
+    updateBody.innerText = "Update Description";
+
+
+    const deleteBody = document.createElement('BUTTON');
+    deleteBody.setAttribute('id', 'Delete');
+    deleteBody.innerText = "Delete Description";
+
+
+    const deleteNote = document.createElement('BUTTON');
+    deleteNote.setAttribute('id', 'Delete');
+    deleteNote.innerText = "Delete Note";
+    li.appendChild(deleteNote);
+    pbody.appendChild(updateBody);
+    pbody.appendChild(deleteBody);
+    li.appendChild(ptitle);
+    li.appendChild(pbody);
+
+    const userName = document.createElement('BUTTON');
+    userName.setAttribute('id', `USER`)
+    if (name) {
+        userName.innerText = `${name}
+
+        `
+    } else {
+      userName.innerText = `This not does not belong to a user.
+
+      `
+    }
+    li.appendChild(userName)
+
+    notesList.appendChild(li)
+
+  }
+
+}
 
 
 notesForm.addEventListener('submit', function(event){
@@ -334,7 +524,7 @@ function updateTitleFromNow(event, noteId, titleValue) {
 
 function displayUpdatedTitle(event, note, titleValue) {
   const p = document.getElementById(`title-${note.id}`)
-  event.target.parentElement.parentElement.innerHTML = `<p id="title-${note.id}">TITLE: <br>              ${note.title}<button id="Update Title">Update Title</button><button id="Delete Title">Delete Title</button>`
+  event.target.parentElement.parentElement.innerHTML = `<p id="title-${note.id}">TITLE: <br>              ${note.title}<button id="Update">Update Title</button><button id="Delete">Delete Title</button>`
 }
 
 function updateTitleForm(noteId) {
@@ -358,7 +548,7 @@ function removeDescriptionFromNote(event, noteId) {
 }
 
 function realTimeRemoveDescription(event, note) {
-  event.target.parentElement.innerHTML = `DESCRIPTION:<br>              <button id="Update Description">Update Description</button><button id="Delete Description">Delete Description</button>`
+  event.target.parentElement.innerHTML = `DESCRIPTION:<br>              <button id="Update">Update Description</button><button id="Delete">Delete Description</button>`
 
 }
 
@@ -375,12 +565,8 @@ function removeTitleFromNote(event, noteId) {
 }
 
 function realTimeRemoveTitle(event, note) {
-  event.target.parentElement.innerHTML = `TITLE:<br>              <button id="Update Title">Update Title</button><button id="Delete Title">Delete Title</button>`
-
-
+  event.target.parentElement.innerHTML = `TITLE:<br>              <button id="Update">Update</button><button id="Delete">Delete</button>`
 }
-
-
 
 function destroyNote(event, noteId) {
   fetch(`${notesURL}/${noteId}`, {method: 'DELETE'}).then(r => r.json()).then(note => realTimeRemoveNote(event, note))
@@ -413,9 +599,6 @@ function operationAlert(note) {
 }
 
 
-
-// notesList.addEventListener('')
-
 function getUsers(users) {
   users.map(getUser)
   users.forEach(user => usersArray.push(user));
@@ -439,11 +622,11 @@ function getUser(user) {
   li.setAttribute('id', `${user.id}`);
   li.innerText = user.name;
   const buttonUpdate = document.createElement('BUTTON');
-  buttonUpdate.setAttribute('id', 'Update User');
+  buttonUpdate.setAttribute('id', 'Update');
   buttonUpdate.innerText = 'Update';
   li.appendChild(buttonUpdate);
   const buttonDelete = document.createElement('BUTTON');
-  buttonDelete.setAttribute('id', 'Delete User');
+  buttonDelete.setAttribute('id', 'Delete');
   buttonDelete.innerText = "Delete";
   li.appendChild(buttonDelete);
   const userNotes = document.createElement('BUTTON');
@@ -452,6 +635,7 @@ function getUser(user) {
   li.appendChild(userNotes);
   const playGames = document.createElement('BUTTON');
   playGames.setAttribute('id', `Games-${id}`);
+  playGames.setAttribute('class', 'GAMES');
   playGames.innerText = "Play Games";
   li.appendChild(playGames)
   userList.appendChild(li);
@@ -468,7 +652,7 @@ function getUserNotes(userNotes, id) {
   ptitle.innerText = `TITLE:
               ${userNotes.title}`;
   const updateTitle = document.createElement('BUTTON');
-  updateTitle.setAttribute('id', 'Update Title');
+  updateTitle.setAttribute('id', 'Update');
   updateTitle.innerText = "Update Title";
   ptitle.appendChild(updateTitle);
 
@@ -483,10 +667,8 @@ function getUserNotes(userNotes, id) {
                     ${userNotes.body}`;
 
 
-
-
   const updateBody = document.createElement('BUTTON');
-  updateBody.setAttribute('id', 'Update Body');
+  updateBody.setAttribute('id', 'Update');
   updateBody.innerText = "Update Description";
 
 
@@ -505,5 +687,92 @@ function getUserNotes(userNotes, id) {
   li.appendChild(pbody);
   notesList.appendChild(li)
 }
+
+
+gamesContainer.addEventListener('click', function(event) {
+
+const toeOne = document.getElementById('toe-1');
+const toeTwo = document.getElementById('toe-2');
+const toeThree = document.getElementById('toe-3');
+const toeFour = document.getElementById('toe-4');
+const toeFive = document.getElementById('toe-5');
+const toeSix = document.getElementById('toe-6');
+const toeSeven = document.getElementById('toe-7');
+const toeEight = document.getElementById('toe-8');
+const toeNine = document.getElementById('toe-9');
+
+  if (event.target.className == "TIC") {
+    const toeId = event.target.id;
+    var element = document.getElementById(toeId);
+    if ((toeOne.innerHTML == "X" && toeTwo.innerHTML == "X" && toeThree.innerHTML == "X") ||
+    (toeFour.innerHTML == "X" && toeFive.innerHTML == "X" && toeSix.innerHTML == "X") ||
+    (toeSeven.innerHTML == "X" && toeEight.innerHTML == "X" && toeNine.innerHTML == "X") ||
+    (toeOne.innerHTML == "X" && toeFour.innerHTML == "X" && toeSeven.innerHTML == "X") ||
+    (toeTwo.innerHTML == "X" && toeFive.innerHTML == "X" && toeEight.innerHTML == "X") ||
+    (toeThree.innerHTML == "X" && toeSix.innerHTML == "X" && toeNine.innerHTML == "X") ||
+    (toeOne.innerHTML == "X" && toeFive.innerHTML == "X" && toeNine.innerHTML == "X") ||
+    (toeThree.innerHTML == "X" && toeFive.innerHTML == "X" && toeSeven.innerHTML == "X"))  {
+      alert('PLAYER X has WON THE GAME!')
+      count = 0;
+      const gamesContainer = document.getElementById('games');
+      var arr = Array.from(gamesContainer.children);
+      arr.forEach(e => e.remove())
+      // event.target.innerText = "Play Games"
+      var things = document.getElementsByClassName('GAMES')
+      var thingsArray = Array.from(things)
+      thingsArray.forEach( e => e.innerText = "Play Games")
+    } else if ((toeOne.innerHTML == "O" && toeTwo.innerHTML == "O" && toeThree.innerHTML == "O") ||
+    (toeFour.innerHTML == "O" && toeFive.innerHTML == "O" && toeSix.innerHTML == "O") ||
+    (toeSeven.innerHTML == "O" && toeEight.innerHTML == "O" && toeNine.innerHTML == "O") ||
+    (toeOne.innerHTML == "O" && toeFour.innerHTML == "O" && toeSeven.innerHTML == "O") ||
+    (toeTwo.innerHTML == "O" && toeFive.innerHTML == "O" && toeEight.innerHTML == "O") ||
+    (toeThree.innerHTML == "O" && toeSix.innerHTML == "O" && toeNine.innerHTML == "O") ||
+    (toeOne.innerHTML == "O" && toeFive.innerHTML == "O" && toeNine.innerHTML == "O") ||
+    (toeThree.innerHTML == "O" && toeFive.innerHTML == "O" && toeSeven.innerHTML == "O"))  {
+      alert('PLAYER O has WON THE GAME!')
+      count = 0;
+      const gamesContainer = document.getElementById('games');
+      var arr = Array.from(gamesContainer.children);
+      arr.forEach(e => e.remove())
+      // event.target.innerText = "Play Games"
+      var things = document.getElementsByClassName('GAMES')
+      var thingsArray = Array.from(things)
+      thingsArray.forEach( e => e.innerText = "Play Games")
+    } else if (element.innerHTML == '' && count % 2 == 0) {
+      element.innerHTML = "X"
+      count++;
+    } else if (element.innerHTML == "" && count % 2 !== 0) {
+      element.innerHTML = "O"
+      count++;
+    } else if (count == 9) {
+      alert('game is a draw.')
+      count = 0;
+      const gamesContainer = document.getElementById('games');
+      var arr = Array.from(gamesContainer.children);
+      arr.forEach(e => e.remove())
+      // event.target.innerText = "Play Games"
+      var things = document.getElementsByClassName('GAMES')
+      var thingsArray = Array.from(things)
+      thingsArray.forEach( e => e.innerText = "Play Games")
+    }
+  }
+
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 })
