@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', function(event){
 
 const notesURL = 'http://localhost:3000/api/v1/notes';
 const usersURL = 'http://localhost:3000/api/v1/users';
+const bjackAPI = 'https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1';
+
 const notesList = document.getElementById('notes-container');
 const usersArray = [];
 const gamesContainer = document.getElementById('games');
@@ -15,6 +17,8 @@ const notesForm = document.getElementById('new-note-form');
 const notesTextTitle = document.getElementById('new-note-text-title');
 const notesTextDescription = document.getElementById('new-note-text-description');
 const usersSelection = document.createElement('SELECT');
+
+const blackjack = document.getElementById('blackjack');
 
 
 const usersList = document.getElementById('users-container');
@@ -54,9 +58,148 @@ usersList.addEventListener('click', function(event){
     var things = document.getElementsByClassName('GAMES')
     var thingsArray = Array.from(things)
     thingsArray.forEach( e => e.innerText = "Play Games")
+  } else if (event.target.innerText == "Play BLACKJACK") {
+    var userId = event.target.parentElement.id;
+    displayTable(userId, event);
   }
 
 })
+
+
+
+function displayTable(userId, event) {
+
+  var theUser = usersArray.find(e => e.id == userId);
+
+
+  fetch(bjackAPI).then(r=> r.json()).then(deck => getDeck(event, deck, theUser))
+
+}
+
+
+function getDeck(event, deck, theUser) {
+  var idDeck = deck.deck_id;
+  var remain = deck.remaining;
+  fetch(`https://deckofcardsapi.com/api/deck/${idDeck}/draw/?count=2`).then(r => r.json()).then(cards => playerCards(event, theUser, cards, idDeck));
+  fetch(`https://deckofcardsapi.com/api/deck/${idDeck}/draw/?count=2`).then(r => r.json()).then(cards => houseCards(event, cards, idDeck));
+}
+
+function playerCards(event, theUser, cards, idDeck) {
+  const div = document.createElement('DIV');
+  div.setAttribute('id', 'player');
+  div.innerHTML += `${theUser.name} <div class="${idDeck}">
+      <img src="${cards.cards[0].image}">
+     <img src="${cards.cards[1].image}">
+  </div> `
+  blackjack.appendChild(div)
+
+  if (cards.cards[0].value == "KING" || cards.cards[0].value == "JACK" || cards.cards[0].value == "QUEEN") {
+    cards.cards[0].value = 10;
+  } else if (cards.cards[0].value == "ACE") {
+    cards.cards[0].value = 11;
+  }
+
+  if (cards.cards[1].value == "KING" || cards.cards[1].value == "JACK" || cards.cards[1].value == "QUEEN") {
+    cards.cards[1].value = 10;
+  } else if (cards.cards[1].value == "ACE") {
+    cards.cards[1].value = 11;
+  }
+  var totalValue = Number(cards.cards[0].value) + Number(cards.cards[1].value);
+  if (totalValue == 21) {
+    alert(`congratulations ${theUser.name}, you got blackjack!!! The house needs to pay up.`)
+  }
+  // div.innerHTML += `${totalValue}`;
+  const hitButton = document.createElement('BUTTON');
+  hitButton.setAttribute('id', `HIT-${totalValue}`);
+  hitButton.innerText = "HIT";
+  div.appendChild(hitButton);
+  const stayButton = document.createElement('BUTTON');
+  stayButton.setAttribute('id', "STAY");
+  stayButton.innerText = "STAY";
+  div.appendChild(stayButton);
+
+
+}
+
+function houseCards(event, cards, idDeck) {
+  const div = document.createElement('DIV');
+  div.setAttribute('id', 'house');
+  div.innerHTML += `The House <div class="${idDeck}">
+      <img src="${cards.cards[0].image}">
+     <img src="${cards.cards[1].image}">
+  </div>`
+  blackjack.appendChild(div)
+
+  if (cards.cards[0].value == "ACE" && cards.cards[1].value == "ACE") {
+    cards.cards[1].value = 11;
+    cards.cards[0].value = 1;
+  } else if (cards.cards[0].value == "KING" || cards.cards[0].value == "JACK" || cards.cards[0].value == "QUEEN") {
+    cards.cards[0].value = 10;
+  } else if (cards.cards[0].value == "ACE" && cards.cards[1].value !== "ACE") {
+    cards.cards[0].value = 11;
+  }
+
+  if (cards.cards[1].value == "KING" || cards.cards[1].value == "JACK" || cards.cards[1].value == "QUEEN") {
+    cards.cards[1].value = 10;
+  } else if (cards.cards[1].value == "ACE") {
+    cards.cards[1].value = 11;
+  }
+
+  var totalValue = Number(cards.cards[0].value) + Number(cards.cards[1].value);
+  // div.innerHTML += `${totalValue}`;
+
+  if (totalValue < 15) {
+    fetch(`https://deckofcardsapi.com/api/deck/${idDeck}/draw/?count=1`).then(r => r.json()).then(card => showHouseCard(event, card, idDeck));
+  }
+
+
+}
+
+function showHouseCard(event, card, idDeck) {
+  var div = document.getElementById('house');
+  div.innerHTML = `<img src="${card.cards[0].image}"> ${div.innerHTML}`
+}
+
+
+
+blackjack.addEventListener('click', function(event){
+  if (event.target.innerText == "HIT") {
+    const idDeck = event.target.parentElement.children[0].className
+    fetch(`https://deckofcardsapi.com/api/deck/${idDeck}/draw/?count=1`).then(r => r.json()).then(card => hitCard(event, card, idDeck));
+  } else if (event.target.innerText == "STAY") {
+    const idDeck = event.target.parentElement.children[0].className;
+
+  }
+})
+
+
+function hitCard (event, card, idDeck) {
+  var totalValue = Number(event.target.id.slice(4));
+  if (card.cards[0].value == "KING" || card.cards[0].value == "QUEEN" || card.cards[0].value == "JACK") {
+    totalValue += 10;
+  } else if (card.cards[0].value == "ACE") {
+    (totalValue += 11) > 21 ? totalValue += 1 : totalValue += 11;
+  } else {
+    totalValue += Number(card.cards[0].value);
+  }
+
+  var div = document.getElementsByClassName(`${idDeck}`)[0];
+  // div.appendChild(buttonHit);
+  div.innerHTML = `<img src="${card.cards[0].image}"> ${div.innerHTML}`;
+  event.target.id = `HIT-${totalValue}`;
+  alert(`${totalValue}`)
+
+  if (totalValue > 21) {
+    alert('You have busted');
+    const buttonstopGame = document.createElement('BUTTON');
+    buttonstopGame.setAttribute('id', 'end');
+    buttonstopGame.innerText = 'END';
+    div.appendChild(buttonstopGame);
+  }
+
+}
+
+
 
 function displayBoard(event, userId) {
 
@@ -71,11 +214,7 @@ function displayBoard(event, userId) {
   const toeSeven = document.createElement('DIV');
   const toeEight = document.createElement('DIV');
   const toeNine = document.createElement('DIV');
-//   #gamesContainer {
-//   display: grid;
-//   grid-template-columns: 20% 20% 20% 20% 20%;
-//   grid-template-rows: 20% 20% 20% 20% 20%;
-// }
+
   toeOne.setAttribute('id', 'toe-1');
   toeTwo.setAttribute('id', 'toe-2');
   toeThree.setAttribute('id', 'toe-3');
@@ -232,7 +371,6 @@ function createUser(name) {
 }
 
 function displayUser(user) {
-
   const usersContainer = document.getElementById('users-container');
 
   const li = document.createElement('LI');
@@ -243,23 +381,29 @@ function displayUser(user) {
   buttonUpdate.setAttribute('id', 'Update');
   buttonUpdate.innerText = 'Update';
   li.appendChild(buttonUpdate);
+
   const buttonDelete = document.createElement('BUTTON');
-  buttonDelete.setAttribute('id', 'Delete User');
+  buttonDelete.setAttribute('id', 'Delete');
   buttonDelete.innerText = "Delete";
   li.appendChild(buttonDelete);
   const userNotes = document.createElement('BUTTON');
   userNotes.setAttribute('id', 'notes')
   userNotes.innerText = 'SHOW USER NOTES';
   li.appendChild(userNotes);
+  const playGames = document.createElement('BUTTON');
+  playGames.setAttribute('id', `Games-${user.id}`);
+  playGames.setAttribute('class', 'GAMES');
+  playGames.innerText = "Play Games";
+  li.appendChild(playGames);
+  const bjack = document.createElement('BUTTON');
+  bjack.innerText = 'Play BLACKJACK';
+  li.appendChild(bjack);
   usersContainer.appendChild(li);
+
+
 
 }
 
-// <form id="search-note-form">
-//     <label >Personal Note: <input id='note-title' type="text"></label>
-//     <button id='submit'>Search Note</button>
-// </form>
-// const searchNote = document.getElementById('search-note-form');
 searchNote.addEventListener('click', function(event) {
   event.preventDefault()
   if (notesList.children.length > 0) {
@@ -637,7 +781,10 @@ function getUser(user) {
   playGames.setAttribute('id', `Games-${id}`);
   playGames.setAttribute('class', 'GAMES');
   playGames.innerText = "Play Games";
-  li.appendChild(playGames)
+  li.appendChild(playGames);
+  const bjack = document.createElement('BUTTON');
+  bjack.innerText = 'Play BLACKJACK';
+  li.appendChild(bjack);
   userList.appendChild(li);
   // user.notes.map(userNotes => getUserNotes(userNotes, id))
 }
@@ -749,23 +896,14 @@ const toeNine = document.getElementById('toe-9');
       count = 0;
       const gamesContainer = document.getElementById('games');
       var arr = Array.from(gamesContainer.children);
-      arr.forEach(e => e.remove())
-      // event.target.innerText = "Play Games"
-      var things = document.getElementsByClassName('GAMES')
-      var thingsArray = Array.from(things)
+      arr.forEach(e => e.remove());
+      var things = document.getElementsByClassName('GAMES');
+      var thingsArray = Array.from(things);
       thingsArray.forEach( e => e.innerText = "Play Games")
     }
   }
 
 })
-
-
-
-
-
-
-
-
 
 
 

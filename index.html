@@ -7,6 +7,7 @@
   </head>
   <body>
     <h1>Welcome Aboard</h1>
+
     <form id="new-user-form">
         <label >User: <input id='new-user-text' type="text"></label>
         <button id='submit'>Create User</button>
@@ -34,17 +35,34 @@
     <ul id='notes-container'>
 
     </ul>
-    <h2>Games</h2>
+    <h3>Games</h3>
     <div id='games'>
 
 
     </div>
+    <h1 id='best'></h1>
+      <div id="blackjack">
+
+      </div>
+
 
     <script src="index.js"></script>
     <style>
       h1 {
         text-align: center;
       }
+
+      h2 {
+        background-color: rgba(10, 10, 10, 0.3);
+        color: white;
+        /* float:left;
+        width: 30%; */
+      }
+
+      /* h3 {
+        float:left;
+        width: 30%;
+      } */
       #games {
        display: grid;
        height: 400px;
@@ -70,7 +88,6 @@
         background-repeat: no-repeat;
         text-align: center;
         background-color: rgba(3, 3, 3, 0.2);
-
       }
 
     #search-note-form {
@@ -123,7 +140,17 @@
 
     body {
       background-color: rgba(10, 5, 10, 0.4);
+      font-weight: bold;
+      /* background-image: url('https://i.pinimg.com/originals/de/6d/24/de6d24695510f0f6290ff617373fccd6.jpg');
+      background-repeat: no-repeat;
+      background-size: 20% 20%; */
     }
+
+    div {
+      font-size: 90px;
+      text-align: center;
+    }
+
     /* #new-note-form {
 
       width:60%;
@@ -135,6 +162,31 @@
       background-color: rgba(0, 0, 30, 0.2);
       font-weight: bold;
       font-size: 17px;
+    }
+
+    li {
+      /* background-image: url('https://i.pinimg.com/originals/de/6d/24/de6d24695510f0f6290ff617373fccd6.jpg');
+      background-repeat: no-repeat;
+      background-size: 100% 100%; */
+    }
+
+    #best {
+      height: 500px;
+      width: 420px;
+      background-image: url('https://www.gamblingsites.org/images/blackjack-hard-hand-example-3.png');
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
+    }
+
+    /* #table {
+      font-size: 6px;
+      text-align: left;
+    } */
+    #player {
+      font-size: 15px;
+    }
+    #house {
+      font-size: 15px;
     }
 
     </style>
